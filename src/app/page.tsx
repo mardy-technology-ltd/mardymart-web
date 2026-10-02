@@ -19,7 +19,8 @@ import {
   FiZap,
   FiSliders,
   FiChevronLeft,
-  FiChevronRight
+  FiChevronRight,
+  FiMenu
 } from "react-icons/fi";
 
 interface Product {
@@ -1347,6 +1348,8 @@ export default function Home() {
   const [cart, setCart] = useState<{ product: Product; quantity: number }[]>([]);
   const [wishlist, setWishlist] = useState<number[]>([]);
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
+  const [isCategoryDrawerOpen, setIsCategoryDrawerOpen] = useState<boolean>(false);
+  const [expandedAccordionCat, setExpandedAccordionCat] = useState<string | null>(null);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [addedItemIds, setAddedItemIds] = useState<number[]>([]);
@@ -1545,8 +1548,18 @@ export default function Home() {
       {/* 3. Main Header */}
       <header className={styles.mainHeader}>
         <div className={styles.headerInner}>
-          <div className={styles.logo} onClick={() => { setSelectedTier('all'); setSelectedCategory('সব ক্যাটাগরি'); setSearchQuery(''); }} style={{ cursor: 'pointer' }}>
-            Mardy<span>Mart</span>
+          <div className={styles.headerLeftWrap}>
+            <button 
+              className={styles.hamburgerBtn} 
+              onClick={() => setIsCategoryDrawerOpen(true)}
+              title="সকল ক্যাটাগরি ড্রয়ার মেনু"
+            >
+              <FiMenu size={22} />
+            </button>
+
+            <div className={styles.logo} onClick={() => { setSelectedTier('all'); setSelectedCategory('সব ক্যাটাগরি'); setSearchQuery(''); }} style={{ cursor: 'pointer' }}>
+              Mardy<span>Mart</span>
+            </div>
           </div>
 
           <div className={styles.searchContainer}>
@@ -1576,10 +1589,10 @@ export default function Home() {
               <FiUser size={20} />
             </div>
             <div className={styles.cartBtn} onClick={() => setIsCartOpen(true)}>
-              <FiShoppingBag size={19} color="#000000" />
+              <FiShoppingBag size={19} color="#ffffff" />
               <span>৳{totalCartPrice.toFixed(2)}</span>
               {totalCartCount > 0 && (
-                <span style={{ background: '#ef4444', color: '#fff', fontSize: '0.75rem', padding: '0.15rem 0.5rem', borderRadius: '9999px', fontWeight: 800 }}>
+                <span style={{ background: '#ffffff', color: '#e63946', fontSize: '0.72rem', padding: '0.12rem 0.45rem', borderRadius: '9999px', fontWeight: 900 }}>
                   {totalCartCount}
                 </span>
               )}
@@ -1591,78 +1604,94 @@ export default function Home() {
       {/* 4. Category & Sub-Category Navigation Bar */}
       <nav className={styles.navRow}>
         <div className={styles.navInner}>
-          <div 
-            className={`${styles.navLinkItem} ${selectedCategory === 'সব ক্যাটাগরি' && !selectedSubCategory ? styles.active : ''}`}
-            onClick={() => { setSelectedCategory('সব ক্যাটাগরি'); setSelectedSubCategory(null); setSelectedTier('all'); }}
-          >
-            সব পণ্য
-          </div>
 
-          {mainNavCategories.map((cat) => {
-            const isCatActive = selectedCategory === cat.categoryFilter;
-            const isOpen = activeDropdown === cat.id;
+          {/* ── Left group ── */}
+          <div className={styles.navLeftGroup}>
+            <div 
+              className={`${styles.navLinkItem} ${styles.navCategoryDrawerTrigger}`}
+              onClick={() => setIsCategoryDrawerOpen(true)}
+            >
+              <FiMenu size={16} />
+              <span>সকল ক্যাটাগরি</span>
+            </div>
 
-            return (
-              <div 
-                key={cat.id} 
-                className={styles.navItemWrapper}
-                onMouseEnter={() => setActiveDropdown(cat.id)}
-                onMouseLeave={() => setActiveDropdown(null)}
-              >
+            <div 
+              className={`${styles.navLinkItem} ${selectedCategory === 'সব ক্যাটাগরি' && !selectedSubCategory ? styles.active : ''}`}
+              onClick={() => { setSelectedCategory('সব ক্যাটাগরি'); setSelectedSubCategory(null); setSelectedTier('all'); }}
+            >
+              সব পণ্য
+            </div>
+
+            {mainNavCategories.map((cat) => {
+              const isCatActive = selectedCategory === cat.categoryFilter;
+              const isOpen = activeDropdown === cat.id;
+
+              return (
                 <div 
-                  className={`${styles.navLinkItem} ${isCatActive ? styles.active : ''}`}
-                  onClick={() => handleSelectNavCategory(cat.categoryFilter)}
+                  key={cat.id} 
+                  className={styles.navItemWrapper}
+                  onMouseEnter={() => setActiveDropdown(cat.id)}
+                  onMouseLeave={() => setActiveDropdown(null)}
                 >
-                  <span>{cat.title}</span>
-                  <FiChevronDown 
-                    size={13} 
-                    style={{ 
-                      transform: isOpen ? 'rotate(180deg)' : 'none', 
-                      transition: 'transform 0.2s',
-                      opacity: 0.7 
-                    }} 
-                  />
-                </div>
-
-                {isOpen && (
-                  <div className={styles.navDropdown}>
-                    <div className={styles.dropdownHeader}>{cat.title}</div>
-                    {cat.subcategories.map((sub, idx) => {
-                      const isSubActive = selectedSubCategory === (sub.keyword === 'সব' ? null : (sub.keyword || sub.name));
-                      return (
-                        <div
-                          key={idx}
-                          className={`${styles.navDropdownItem} ${isSubActive ? styles.activeSubItem : ''}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSelectSubCategory(cat.categoryFilter, sub);
-                          }}
-                        >
-                          <span>{sub.name}</span>
-                          <span style={{ fontSize: '0.75rem', opacity: 0.6 }}>→</span>
-                        </div>
-                      );
-                    })}
+                  <div 
+                    className={`${styles.navLinkItem} ${isCatActive ? styles.active : ''}`}
+                    onClick={() => handleSelectNavCategory(cat.categoryFilter)}
+                  >
+                    <span>{cat.title}</span>
+                    <FiChevronDown 
+                      size={13} 
+                      style={{ 
+                        transform: isOpen ? 'rotate(180deg)' : 'none', 
+                        transition: 'transform 0.2s',
+                        opacity: 0.7 
+                      }} 
+                    />
                   </div>
-                )}
-              </div>
-            );
-          })}
 
-          <div 
-            className={styles.navLinkItem}
-            onClick={() => { 
-              setSelectedTier('99'); 
-              setSelectedCategory('সব ক্যাটাগরি');
-              setSelectedSubCategory(null);
-              document.getElementById('shop-grid-section')?.scrollIntoView({ behavior: 'smooth' }); 
-            }}
-            style={{ color: '#ef4444', fontWeight: 800, marginLeft: 'auto' }}
-          >
-            🔥 ৯৯৳ স্পেশাল ডিল
+                  {isOpen && (
+                    <div className={styles.navDropdown}>
+                      <div className={styles.dropdownHeader}>{cat.title}</div>
+                      {cat.subcategories.map((sub, idx) => {
+                        const isSubActive = selectedSubCategory === (sub.keyword === 'সব' ? null : (sub.keyword || sub.name));
+                        return (
+                          <div
+                            key={idx}
+                            className={`${styles.navDropdownItem} ${isSubActive ? styles.activeSubItem : ''}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSelectSubCategory(cat.categoryFilter, sub);
+                            }}
+                          >
+                            <span>{sub.name}</span>
+                            <span style={{ fontSize: '0.75rem', opacity: 0.6 }}>→</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
+
+          {/* ── Right group ── */}
+          <div className={styles.navRightGroup}>
+            <div 
+              className={styles.navDealBadge}
+              onClick={() => { 
+                setSelectedTier('99'); 
+                setSelectedCategory('সব ক্যাটাগরি');
+                setSelectedSubCategory(null);
+                document.getElementById('shop-grid-section')?.scrollIntoView({ behavior: 'smooth' }); 
+              }}
+            >
+              🔥 ৩৯৯৳ স্পেশাল ডিল
+            </div>
+          </div>
+
         </div>
       </nav>
+
 
       {/* Main Content Area */}
       <main className={styles.contentWrapper}>
@@ -2169,7 +2198,172 @@ export default function Home() {
         </div>
       )}
 
-      {/* 11. SLIDE-OVER MINI CART DRAWER */}
+      {/* 11. APP-STYLE CATEGORY SIDE DRAWER */}
+      {isCategoryDrawerOpen && (
+        <div className={styles.sideDrawerBackdrop} onClick={() => setIsCategoryDrawerOpen(false)}>
+          <div className={styles.sideDrawer} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.sideDrawerHeader}>
+              <div className={styles.sideDrawerBrand}>
+                <div className={styles.drawerLogo}>Mardy<span>Mart</span></div>
+                <span className={styles.drawerSubtitle}>শপ ক্যাটাগরি মেনু</span>
+              </div>
+              <button 
+                className={styles.closeDrawerBtn} 
+                onClick={() => setIsCategoryDrawerOpen(false)}
+                title="মেনু বন্ধ করুন"
+              >
+                <FiX size={20} />
+              </button>
+            </div>
+
+            <div className={styles.sideDrawerContent}>
+              {/* Quick User Banner */}
+              <div className={styles.drawerUserBanner}>
+                <div className={styles.drawerAvatar}><FiUser size={18} /></div>
+                <div>
+                  <div style={{ fontWeight: 800, fontSize: '0.92rem', color: '#0f172a' }}>মার্ডি মার্ট-এ স্বাগতম!</div>
+                  <div style={{ fontSize: '0.78rem', color: '#64748b' }}>সাশ্রয়ী মূল্যের প্রিমিয়াম অনলাইন শপ</div>
+                </div>
+              </div>
+
+              {/* Budget Tiers Quick Grid */}
+              <div className={styles.drawerSectionTitle}>🎯 বাজেট জোন নির্বাচন করুন</div>
+              <div className={styles.drawerTiersGrid}>
+                {priceTiers.map((tier) => (
+                  <button
+                    key={tier.id}
+                    className={`${styles.drawerTierBtn} ${selectedTier === tier.id ? styles.drawerTierBtnActive : ''}`}
+                    onClick={() => {
+                      setSelectedTier(tier.id);
+                      setSelectedCategory('সব ক্যাটাগরি');
+                      setSelectedSubCategory(null);
+                      setIsCategoryDrawerOpen(false);
+                      document.getElementById('shop-grid-section')?.scrollIntoView({ behavior: 'smooth' });
+                      triggerToast(`🎯 বাজেট ফিল্টার: ${tier.priceText}`);
+                    }}
+                  >
+                    <span>{tier.icon}</span>
+                    <span>{tier.priceText}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Categories List with Accordion */}
+              <div className={styles.drawerSectionTitle} style={{ marginTop: '1.4rem' }}>
+                📂 সকল প্রোডাক্ট ক্যাটাগরি
+              </div>
+
+              <div className={styles.drawerCategoryList}>
+                {/* All Products */}
+                <div 
+                  className={`${styles.drawerCategoryItem} ${selectedCategory === 'সব ক্যাটাগরি' && !selectedSubCategory ? styles.drawerCategoryItemActive : ''}`}
+                  onClick={() => {
+                    setSelectedCategory('সব ক্যাটাগরি');
+                    setSelectedSubCategory(null);
+                    setSelectedTier('all');
+                    setIsCategoryDrawerOpen(false);
+                    document.getElementById('shop-grid-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
+                  <div className={styles.drawerCatLeft}>
+                    <span className={styles.drawerCatIcon}>🛍️</span>
+                    <span className={styles.drawerCatText}>সব পণ্য (All Products)</span>
+                  </div>
+                  <span className={styles.drawerArrow}>→</span>
+                </div>
+
+                {mainNavCategories.map((cat) => {
+                  const isCatSelected = selectedCategory === cat.categoryFilter;
+                  const isAccordionOpen = expandedAccordionCat === cat.id;
+
+                  return (
+                    <div key={cat.id} className={styles.drawerAccordionWrapper}>
+                      <div 
+                        className={`${styles.drawerCategoryItem} ${isCatSelected ? styles.drawerCategoryItemActive : ''}`}
+                        onClick={() => {
+                          setExpandedAccordionCat(isAccordionOpen ? null : cat.id);
+                        }}
+                      >
+                        <div className={styles.drawerCatLeft}>
+                          <span className={styles.drawerCatIcon}>
+                            {cat.id === 'home-kitchen' ? '🍳' :
+                             cat.id === 'beauty-care' ? '💄' :
+                             cat.id === 'stationery' ? '📚' :
+                             cat.id === 'home-decor' ? '🛋️' :
+                             cat.id === 'gadgets' ? '📱' : '🧸'}
+                          </span>
+                          <span className={styles.drawerCatText}>{cat.title}</span>
+                        </div>
+                        <div className={styles.drawerAccordionToggle}>
+                          <FiChevronDown 
+                            size={16} 
+                            style={{ 
+                              transform: isAccordionOpen ? 'rotate(180deg)' : 'none', 
+                              transition: 'transform 0.2s',
+                              color: isCatSelected ? '#ef4444' : '#64748b'
+                            }} 
+                          />
+                        </div>
+                      </div>
+
+                      {isAccordionOpen && (
+                        <div className={styles.drawerSubList}>
+                          {cat.subcategories.map((sub, sIdx) => {
+                            const isSubActive = selectedSubCategory === (sub.keyword === 'সব' ? null : (sub.keyword || sub.name));
+                            return (
+                              <div
+                                key={sIdx}
+                                className={`${styles.drawerSubItem} ${isSubActive ? styles.drawerSubItemActive : ''}`}
+                                onClick={() => {
+                                  handleSelectSubCategory(cat.categoryFilter, sub);
+                                  setIsCategoryDrawerOpen(false);
+                                }}
+                              >
+                                <span>• {sub.name}</span>
+                                <span style={{ fontSize: '0.75rem', opacity: 0.5 }}>→</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Special Quick Deals & Wishlist */}
+              <div className={styles.drawerFooterLinks}>
+                <div 
+                  className={styles.drawerFooterLinkItem}
+                  onClick={() => {
+                    setSelectedTier('99');
+                    setSelectedCategory('সব ক্যাটাগরি');
+                    setSelectedSubCategory(null);
+                    setIsCategoryDrawerOpen(false);
+                    document.getElementById('shop-grid-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
+                  🔥 ৯৯৳ স্পেশাল ডিল
+                </div>
+                <div 
+                  className={styles.drawerFooterLinkItem}
+                  onClick={() => {
+                    setIsCartOpen(true);
+                    setIsCategoryDrawerOpen(false);
+                  }}
+                >
+                  🛒 শপিং ব্যাগ ({totalCartCount})
+                </div>
+                <div className={styles.drawerFooterLinkItem}>
+                  📞 হেল্পলাইন: ০৯৬১২-০০০০০০
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 12. SLIDE-OVER MINI CART DRAWER */}
       {isCartOpen && (
         <div className={styles.cartDrawerBackdrop} onClick={() => setIsCartOpen(false)}>
           <div className={styles.cartDrawer} onClick={(e) => e.stopPropagation()}>
