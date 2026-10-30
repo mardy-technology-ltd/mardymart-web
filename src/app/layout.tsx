@@ -1,32 +1,54 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Hind_Siliguri } from "next/font/google";
+import { ShopProvider } from "@/context/ShopContext";
 import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
   variable: "--font-inter",
   display: "swap",
 });
 
+const hindSiliguri = Hind_Siliguri({
+  weight: ["400", "500", "600", "700"],
+  subsets: ["bengali"],
+  variable: "--font-hind-siliguri",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "MardyMart – ৳৪৯ থেকে ৳৩৯৯ প্রিমিয়াম শপিং | বাংলাদেশের সেরা ফিক্সড প্রাইস শপ",
+  title: "MardyMart – বাজেটবান্ধব অনলাইন শপিং | Mardy Technology",
   description:
-    "MardyMart বাংলাদেশের সেরা ফিক্সড-প্রাইস অনলাইন শপ। হোম কিচেন, বিউটি কেয়ার, গ্যাজেট, খেলনা ও আরও অনেক কিছু মাত্র ৳৪৯ থেকে ৳৩৯৯-এ। ফাস্ট ডেলিভারি, প্রিমিয়াম কোয়ালিটি।",
-  keywords: ["MardyMart", "মার্ডি মার্ট", "online shopping", "fixed price", "Bangladesh shop", "৯৯ শপ", "সাশ্রয়ী দাম"],
-  authors: [{ name: "Mardy Technology Ltd" }],
+    "MardyMart-এ স্বাগতম! সাশ্রয়ী মূল্যে সেরা হোম কিচেন, বিউটি, গ্যাজেট, স্টেশনারি ও খেলনা কিনুন ৳৪৯ থেকে ৳৩৯৯ এর মধ্যে। ৳৫০০+ অর্ডারে ফ্রি ডেলিভারি!",
+  keywords: [
+    "MardyMart",
+    "Mardy Technology",
+    "অনলাইন শপিং",
+    "বাজেট শপিং",
+    "হোম অ্যান্ড কিচেন",
+    "গ্যাজেট এক্সেসরিজ",
+    "best deals BD",
+  ],
+  authors: [{ name: "Mardy Technology Ltd." }],
   openGraph: {
-    title: "MardyMart – বাংলাদেশের সেরা ফিক্সড প্রাইস অনলাইন শপ",
-    description: "৳৪৯ থেকে ৳৩৯৯-এ প্রিমিয়াম পণ্য। ফাস্ট ডেলিভারি সারাদেশে।",
+    title: "MardyMart – ৳৪৯ থেকে শুরু প্রিমিয়াম শপিং",
+    description: "সাশ্রয়ী মূল্যে সেরা পণ্য ঘরে বসে অর্ডার করুন। ৳৫০০+ অর্ডারে ফ্রি ডেলিভারি!",
     type: "website",
     locale: "bn_BD",
+    siteName: "MardyMart",
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="bn" className={inter.variable}>
-      <body>{children}</body>
+    <html lang="bn" className={`${inter.variable} ${hindSiliguri.variable}`}>
+      <body>
+        <ShopProvider>{children}</ShopProvider>
+      </body>
     </html>
   );
 }
