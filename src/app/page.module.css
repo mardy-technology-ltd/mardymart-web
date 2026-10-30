@@ -1145,7 +1145,8 @@
   overflow-x: auto;
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
-  padding: 4px 2px 14px 2px;
+  padding: 8px 4px 16px 4px;
+  align-items: stretch;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -1154,6 +1155,7 @@
 }
 .sliderItem {
   flex: 0 0 260px;
+  display: flex;
   scroll-snap-align: start;
 }
 .sliderFloatingArrow {
@@ -1204,6 +1206,8 @@
 
 /* ─── PRODUCT CARD ─── */
 .card {
+  width: 100%;
+  height: 100%;
   background: var(--white);
   border: 1px solid var(--slate-200);
   border-radius: var(--r-lg);
@@ -1323,6 +1327,7 @@
   font-weight: 600;
   color: var(--slate-900);
   line-height: 1.4;
+  height: 2.8em;
   margin-bottom: 8px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
