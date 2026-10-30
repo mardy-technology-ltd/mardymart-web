@@ -57,8 +57,19 @@ export interface EssentialItem {
   img: string;
 }
 
+export interface Review {
+  id: number;
+  name: string;
+  location: string;
+  avatar: string;
+  rating: number;
+  date: string;
+  comment: string;
+  verified: boolean;
+  productName: string;
+}
+
 export interface ToastMessage {
   msg: string;
   type: "success" | "info" | "error";
 }
-

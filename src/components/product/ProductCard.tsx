@@ -12,7 +12,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const { addToCart, toggleWishlist, isInWishlist } = useShop();
+  const { addToCart, toggleWishlist, isInWishlist, openQuickView } = useShop();
   const wished = isInWishlist(product.id);
   const discountPercent = Math.round(
     ((product.oldPrice - product.price) / product.oldPrice) * 100
@@ -20,13 +20,18 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <div className={styles.card}>
-      {product.badge && <span className={styles.cardBadge}>{product.badge}</span>}
-      {product.isNew && <span className={styles.cardNew}>NEW</span>}
-      {product.isBestSeller && <span className={styles.cardHot}>🔥 বেস্ট</span>}
+      <div className={styles.cardBadgeRow}>
+        {product.badge && <span className={styles.cardBadge}>{product.badge}</span>}
+        {product.isNew && <span className={styles.cardNew}>NEW</span>}
+        {product.isBestSeller && <span className={styles.cardHot}>🔥 বেস্ট</span>}
+      </div>
 
       <button
         className={`${styles.wishIcon}${wished ? ` ${styles.wished}` : ""}`}
-        onClick={() => toggleWishlist(product.id)}
+        onClick={(e) => {
+          e.stopPropagation();
+          toggleWishlist(product.id);
+        }}
         aria-label={wished ? "উইশলিস্ট থেকে সরান" : "উইশলিস্টে যোগ করুন"}
       >
         <svg
@@ -34,7 +39,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           height="15"
           viewBox="0 0 24 24"
           fill={wished ? "#e53e3e" : "none"}
-          stroke={wished ? "#e53e3e" : "#bbb"}
+          stroke={wished ? "#e53e3e" : "#888"}
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -44,7 +49,14 @@ export default function ProductCard({ product }: ProductCardProps) {
         </svg>
       </button>
 
-      <div className={styles.cardImgBox}>
+      <div
+        className={styles.cardImgBox}
+        onClick={() => openQuickView(product)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => e.key === "Enter" && openQuickView(product)}
+        aria-label={`${product.title} দ্রুত প্রিভিউ দেখুন`}
+      >
         <Image
           src={product.image}
           alt={product.title}
@@ -53,11 +65,30 @@ export default function ProductCard({ product }: ProductCardProps) {
           className={styles.cardImg}
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
         />
+        <button
+          type="button"
+          className={styles.cardQuickBtn}
+          onClick={(e) => {
+            e.stopPropagation();
+            openQuickView(product);
+          }}
+        >
+          🔍 কুইক ভিউ
+        </button>
       </div>
 
       <div className={styles.cardBody}>
         <p className={styles.cardCat}>{product.category.split(" ")[0]}</p>
-        <p className={styles.cardTitle}>{product.title}</p>
+        <h3
+          className={styles.cardTitle}
+          onClick={() => openQuickView(product)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === "Enter" && openQuickView(product)}
+        >
+          {product.title}
+        </h3>
+
         <Stars rating={product.rating} reviewsCount={product.reviewsCount} />
 
         <div className={styles.cardPriceRow}>
@@ -74,8 +105,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           {product.inStock ? (
             <>
               <svg
-                width="13"
-                height="13"
+                width="14"
+                height="14"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -98,4 +129,3 @@ export default function ProductCard({ product }: ProductCardProps) {
     </div>
   );
 }
-

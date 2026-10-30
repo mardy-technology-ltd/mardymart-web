@@ -15,7 +15,7 @@ export default function HeroBanner({ onCtaClick }: HeroBannerProps) {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIdx((prev) => (prev + 1) % HERO_SLIDES.length);
-    }, 4500);
+    }, 5000);
 
     return () => clearInterval(timer);
   }, []);
@@ -31,7 +31,7 @@ export default function HeroBanner({ onCtaClick }: HeroBannerProps) {
   };
 
   return (
-    <section className={styles.hero} style={{ background: slide.bg }}>
+    <section className={styles.hero} style={{ background: slide.bg }} aria-label="প্রধান অফার ব্যানার">
       <div className={styles.heroBg} />
 
       <button
@@ -55,37 +55,56 @@ export default function HeroBanner({ onCtaClick }: HeroBannerProps) {
       </button>
 
       <div className={styles.heroContent}>
-        <span className={styles.heroEye}>{slide.eyebrow}</span>
+        <div className={styles.heroPillGroup}>
+          <span className={styles.heroEye}>{slide.eyebrow}</span>
+          <span className={styles.heroBadgeHighlight}>৳৪৯ থেকে শুরু</span>
+        </div>
+
         <h1 className={styles.heroH1}>{slide.title}</h1>
         <p className={styles.heroSub}>{slide.sub}</p>
-        <button
-          className={styles.heroCta}
-          onClick={() => onCtaClick(slide.ctaFilter)}
-        >
-          {slide.cta}{" "}
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
+
+        <div className={styles.heroPerkStrip}>
+          <span>⚡ দ্রুত ডেলিভারি</span>
+          <span>🛡️ ১০০% অরিজিনাল</span>
+          <span>↩ সহজ রিটার্ন</span>
+        </div>
+
+        <div className={styles.heroCtaRow}>
+          <button
+            className={styles.heroCta}
+            onClick={() => onCtaClick(slide.ctaFilter)}
           >
-            <line x1="5" y1="12" x2="19" y2="12" />
-            <polyline points="12 5 19 12 12 19" />
-          </svg>
-        </button>
+            {slide.cta}{" "}
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </button>
+          <button
+            className={styles.heroCtaSecondary}
+            onClick={() => onCtaClick("all")}
+          >
+            সব কালেকশন
+          </button>
+        </div>
       </div>
 
       <div className={styles.heroImg}>
         <Image
           src={slide.image}
           alt={slide.title}
-          width={500}
-          height={400}
+          width={520}
+          height={420}
           priority={currentIdx === 0}
           className={styles.heroImgEl}
         />
@@ -126,4 +145,3 @@ export default function HeroBanner({ onCtaClick }: HeroBannerProps) {
     </section>
   );
 }
-

@@ -13,8 +13,9 @@ import { Product, CartItem, ToastMessage } from "../types";
 
 const CART_STORAGE_KEY = "mardymart_cart_v1";
 const WISH_STORAGE_KEY = "mardymart_wishlist_v1";
+const FREE_SHIPPING_THRESHOLD = 500;
 
-// ── In-Memory External Store for safe SSR & zero cascading render ──
+// In-Memory External Store for safe SSR & zero cascading render
 let memoryCart: CartItem[] = [];
 let memoryWishlist: number[] = [];
 const storeListeners = new Set<() => void>();
@@ -82,10 +83,13 @@ interface ShopContextType {
   totalAmount: number;
   deliveryCharge: number;
   finalTotal: number;
+  freeShippingThreshold: number;
+  freeShippingRemaining: number;
+  freeShippingProgress: number;
   isCartOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
-  addToCart: (product: Product) => void;
+  addToCart: (product: Product, quantity?: number) => void;
   incrementQty: (productId: number) => void;
   decrementQty: (productId: number) => void;
   removeFromCart: (productId: number) => void;
@@ -96,6 +100,10 @@ interface ShopContextType {
   toggleWishlist: (productId: number) => void;
   isInWishlist: (productId: number) => boolean;
 
+  quickViewProduct: Product | null;
+  openQuickView: (product: Product) => void;
+  closeQuickView: () => void;
+
   toast: ToastMessage | null;
   showToast: (msg: string, type?: "success" | "info" | "error") => void;
 }
@@ -104,6 +112,7 @@ const ShopContext = createContext<ShopContextType | undefined>(undefined);
 
 export function ShopProvider({ children }: { children: React.ReactNode }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [toast, setToast] = useState<ToastMessage | null>(null);
 
   // Load storage once on client
@@ -136,14 +145,14 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const addToCart = useCallback(
-    (product: Product) => {
+    (product: Product, quantity = 1) => {
       const existingIdx = memoryCart.findIndex((item) => item.id === product.id);
       if (existingIdx >= 0) {
         memoryCart = memoryCart.map((item, idx) =>
-          idx === existingIdx ? { ...item, qty: item.qty + 1 } : item
+          idx === existingIdx ? { ...item, qty: item.qty + quantity } : item
         );
       } else {
-        memoryCart = [...memoryCart, { ...product, qty: 1 }];
+        memoryCart = [...memoryCart, { ...product, qty: quantity }];
       }
       persistToStorage();
       notifyStore();
@@ -201,16 +210,36 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
     [wishlist]
   );
 
+  const openQuickView = useCallback((product: Product) => {
+    setQuickViewProduct(product);
+  }, []);
+
+  const closeQuickView = useCallback(() => {
+    setQuickViewProduct(null);
+  }, []);
+
   const cartCount = useMemo(() => cart.reduce((sum, item) => sum + item.qty, 0), [cart]);
   const totalAmount = useMemo(
     () => cart.reduce((sum, item) => sum + item.price * item.qty, 0),
     [cart]
   );
+
   const deliveryCharge = useMemo(() => {
     if (cart.length === 0) return 0;
-    return totalAmount >= 500 ? 0 : 60;
+    return totalAmount >= FREE_SHIPPING_THRESHOLD ? 0 : 60;
   }, [cart.length, totalAmount]);
+
   const finalTotal = useMemo(() => totalAmount + deliveryCharge, [totalAmount, deliveryCharge]);
+
+  const freeShippingRemaining = useMemo(
+    () => Math.max(0, FREE_SHIPPING_THRESHOLD - totalAmount),
+    [totalAmount]
+  );
+
+  const freeShippingProgress = useMemo(
+    () => Math.min(100, Math.round((totalAmount / FREE_SHIPPING_THRESHOLD) * 100)),
+    [totalAmount]
+  );
 
   const value = useMemo(
     () => ({
@@ -219,6 +248,9 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
       totalAmount,
       deliveryCharge,
       finalTotal,
+      freeShippingThreshold: FREE_SHIPPING_THRESHOLD,
+      freeShippingRemaining,
+      freeShippingProgress,
       isCartOpen,
       openCart: () => setIsCartOpen(true),
       closeCart: () => setIsCartOpen(false),
@@ -231,6 +263,9 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
       wishlistCount: wishlist.length,
       toggleWishlist,
       isInWishlist,
+      quickViewProduct,
+      openQuickView,
+      closeQuickView,
       toast,
       showToast,
     }),
@@ -240,6 +275,8 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
       totalAmount,
       deliveryCharge,
       finalTotal,
+      freeShippingRemaining,
+      freeShippingProgress,
       isCartOpen,
       addToCart,
       incrementQty,
@@ -249,6 +286,9 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
       wishlist,
       toggleWishlist,
       isInWishlist,
+      quickViewProduct,
+      openQuickView,
+      closeQuickView,
       toast,
       showToast,
     ]
