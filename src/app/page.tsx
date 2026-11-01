@@ -24,6 +24,7 @@ import SocialProof from "@/components/home/SocialProof";
 import Newsletter from "@/components/home/Newsletter";
 import ProductCard from "@/components/product/ProductCard";
 import ProductSlider from "@/components/product/ProductSlider";
+import ProductCoverflowSlider from "@/components/product/ProductCoverflowSlider";
 import SectionHead from "@/components/product/SectionHead";
 
 import styles from "./page.module.css";
@@ -140,12 +141,13 @@ export default function Home() {
                 onClearFilters={clearAllFilters}
               />
 
-              {/* সেকশন ১: হোম ও কিচেন স্লাইডার */}
-              <ProductSlider
+              {/* সেকশন ১: হোম ও কিচেন স্লাইডার (3D CoverFlow) */}
+              <ProductCoverflowSlider
                 title="হোম ও কিচেনের"
                 accent="সেরা ডিলসমূহ"
                 products={getSectionProducts("হোম অ্যান্ড কিচেন")}
                 onViewAll={() => navigateToCategory("হোম অ্যান্ড কিচেন")}
+                autoplayDelay={2500}
               />
 
               {/* টপ ক্যাটাগরি */}
